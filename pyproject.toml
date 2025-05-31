@@ -1,0 +1,12 @@
+[project]
+name = "Barkin"
+version = "1.0.0"
+description = "A site hosting review sites for classes, workshops, conferences, etc."
+author = ["Skyler Rapp"]
+dependencies = [
+    "flask",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"

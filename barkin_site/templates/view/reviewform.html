@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta chaarset="UTF-8">
+    <meta name="viewport" ccontent="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <title>Submit Review - Barkin!</title>
+</head>
+
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+    <form class="input_screen" method="post" action="{{ url_for('view.reviewform') }}">
+        <div class="container">
+            <h1>New Review</h1>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h3 style="color:red">{{ message }}</h3>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <label for="EventName"><b>Event Name</b></label>
+            <select id="event-dropdown" name="EventName" class="EventName">
+                <option disabled selected value></option>
+                {% for event in events %}
+                    <option value="{{ event['Name'] }} - {{ event['Organization'] }}">{{ event['Name'] }} - {{ event['Organization'] }}</option>
+                {% endfor %}
+            </select>
+
+            <div class="EventNotListed" style="align-items: center;">
+                <Label><i>Event not listed?</i></Label>
+                <button class="AddEvent" name="AddEvent" type="submit">+ Add it!</button>
+            </div>
+
+            <label for="Rating"><b>Rating</b></label>
+            <div class="rating">
+                <input type="radio" name="rating" id="star-1"
+                class="rating-radio" value="5">
+                <label for="star-1"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-2"
+                class="rating-radio" value="4">
+                <label for="star-2"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-3"
+                class="rating-radio" value="3">
+                <label for="star-3"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-4"
+                class="rating-radio" value="2">
+                <label for="star-4"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-5"
+                class="rating-radio" value="1">
+                <label for="star-5"><i class="fa-solid fa-star"></i></label>
+            </div>
+    
+            <label for="Comments"><b>Comments</b></label>
+            <textarea name="Comments" id="Comments" maxlength="500"></textarea>
+            <div class="row">
+                <button class="SubmitReview" type="submit">Submit Review</button>
+                <button class="Cancel" name="Cancel" type="submit">Cancel</button>
+            </div>
+        </div>
+    </form>
+    <script>
+    $(document).ready(function() {
+        $('#event-dropdown').select2({
+        placeholder: "Select an event",
+        allowClear: false
+        });
+    });
+    </script>
+</html>

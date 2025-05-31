@@ -1,0 +1,2 @@
+SECRET_KEY='c151e123d8ba015da462597436aec6fc75b43c10d940f8b0e93a07110f17ea90'
+DATABASE='barkin_site.sqlite'

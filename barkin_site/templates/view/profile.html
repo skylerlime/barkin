@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <title>Saved Events - Barkin!</title>
+</head>
+
+<body>
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+        {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <h3 style="color:#1b263b">{{ message }}</h3>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<h1>Saved Events:</h1>
+    {% for saved_event in saved_events %}
+    <div style="padding: 4px 0; margin-left: 8px">
+        <div class="eventtitle">
+            <h3>
+                <a href="{{ url_for('view.event_detail', name=saved_event['EventName'], organization=saved_event['EventOrganization']) }}" style="font-size: 16px">
+                    {{ saved_event['EventName'] }} - {{ saved_event['EventOrganization'] }}
+                </a>
+            </h3>
+
+            <form method="POST" action="{{ url_for('view.profile') }}" style="display: inline;">
+                <input type="hidden" name="EventName" value="{{ saved_event['EventName'] }}">
+                <input type="hidden" name="EventOrganization" value="{{ saved_event['EventOrganization'] }}">
+                <button name="remove" class="fa-solid fa-trash-can"
+                            style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Remove saved event">
+                    </button>
+            </form>
+        </div>
+        {{ saved_event['Info'] }}
+    </div>
+    {% endfor %}
+
+<h1>Your Reviews:</h1>
+{% for user_review in user_reviews %}
+    <div class="evententry" style="margin: 0 10px">
+        <strong style="font-size:18px;">{{ user_review['EventName'] }} - {{ user_review['EventOrganization'] }}</strong><br>
+      <strong>{{ user_review['PublishedAt'] }}</strong>
+        <div>
+            {% set full_stars = user_review['Rating']|int %}
+            {% set half_star = 1 if (user_review['Rating'] - full_stars) >= 0.5 else 0 %}
+            {% set empty_stars = 5 - full_stars - half_star %}
+
+            {% for _ in range(full_stars) %}
+                <i class="fa-solid fa-star" style="color: #415a77;"></i>
+            {% endfor %}
+
+            {% if half_star %}
+                <i class="fa-solid fa-star-half-stroke" style="color: #415a77;"></i>
+            {% endif %}
+
+            {% for _ in range(empty_stars) %}
+                <i class="fa-regular fa-star" style="color: #415a77;"></i>
+            {% endfor %}
+
+        </div>
+        <p></p>
+        {{ user_review['Comments'] }}
+    </div>
+    {% endfor %}
+</body>
+</html>

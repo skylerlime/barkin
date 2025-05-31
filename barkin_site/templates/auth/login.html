@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta chaarset="UTF-8">
+    <meta name="viewport" ccontent="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Login - Barkin!</title>
+</head>
+
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+    <form class="input_screen" method="post">
+        <h1 name="welcometext" >Arf! Welcome to Barkin!</h1>
+
+        <div class="imgcontainer">
+        <img src="../static/welcome.gif" class="welcome">
+        </div>
+    
+        <div class="container">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h3 style="color:red">{{ message }}</h3>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+                
+            <label for="email"><b>Email</b></label>
+            <input type="text" placeholder="Enter Email" name="email" id="email">
+        
+            <label for="pass"><b>Password</b></label>
+            <input type="password" placeholder="Enter Password" name="password" id ="password">
+            
+            <div class="row">
+            <button class="Login" type="submit">Login</button>
+            <button class="CreateAccount" name="CreateAccount" type="submit">Create Account</button>
+            </div>
+        </div>
+    </form>
+</html>

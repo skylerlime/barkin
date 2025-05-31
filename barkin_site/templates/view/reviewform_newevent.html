@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta chaarset="UTF-8">
+    <meta name="viewport" ccontent="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <title>Submit Review - Barkin!</title>
+</head>
+
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+    <form class="input_screen" action="{{ url_for('view.reviewform_newevent') }}" method="post">
+        <div class="container">
+            <h1>New Review</h1>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <h3 style="color:red">{{ message }}</h3>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <label for="EventName"><b>Event Name</b></label>
+            <input name="EventName" class="EventName"></input>
+
+            <label for="Organization"><b>Organization</b></label>
+            <input name="Organization" class="Organization"></input>
+
+            <label for="Rating"><b>Rating</b></label>
+            <div class="rating" required>
+                <input type="radio" name="rating" id="star-1"
+                class="rating-radio" value="1">
+                <label for="star-1"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-2"
+                class="rating-radio" value="2">
+                <label for="star-2"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-3"
+                class="rating-radio" value="3">
+                <label for="star-3"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-4"
+                class="rating-radio" value="4">
+                <label for="star-4"><i class="fa-solid fa-star"></i></label>
+
+                <input type="radio" name="rating" id="star-5"
+                class="rating-radio" value="5">
+                <label for="star-5"><i class="fa-solid fa-star"></i></label>
+            </div>
+
+            <label for="SkillLevel"><b>Skill Level</b></label>
+            <select name="SkillLevel" class="SkillLevel">
+                <option disabled selected value></option>
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Professional">Professional</option>
+            </select>
+
+            <label for="Cost"><b>Cost</b></label>
+            <input name="Cost" class="Cost"></input>
+
+            <label for="Duration"><b>Duration</b></label>
+            <select name="Duration" class="Duration">
+                <option disabled selected value></option>
+                <option value="One day">One day</option>
+                <option value="Multiple days">Multiple days</option>
+                <option value="One week">One week</option>
+                <option value="Multiple weeks">Multiple weeks</option>
+                <option value="One month">One month</option>
+                <option value="Multiple months">Multiple months</option>
+            </select>
+
+            <label for="Medium"><b>Medium</b></label>
+            <select name="Medium" class="Medium">
+                <option disabled selected value></option>
+                <option value="In Person">In Person</option>
+                <option value="Online">Online</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+
+            <label for="Info"><b>Event Info</b></label>
+            <textarea name="Info" maxlength="500"></textarea>
+    
+            <label for="Comments"><b>Comments</b></label>
+            <textarea name="Comments" maxlength="500"></textarea>
+            
+            <label for="Tags"><b>Tags</b></label>
+            <i>(seperate with commas, i.e. "Time Management, Java, Leadership")</i>
+            <input name="Tags" id="Tags"></select>
+
+            <div class="row">
+                <button class="SubmitReview" type="submit">Submit Review</button>
+                <button class="Cancel" name="Cancel" type="submit">Cancel</button>
+            </div>
+        </div>
+    </form>
+</html>

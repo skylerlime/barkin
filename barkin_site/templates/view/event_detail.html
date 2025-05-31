@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>{{ event['Name'] }} - Barkin!</title>
+  <meta chaarset="UTF-8">
+  <meta name="viewport" ccontent="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+</head>
+
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<body>
+  <div class="detail_header">
+    <form method="POST">
+      <button name="Return" class="fa-solid fa-arrow-left" style="color: #1b263b; font-size:24px; background: none;" type="submit"></button>
+    </form>
+
+    <div>
+    <h1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ event['Name'] }}</h1>
+    </div>
+
+      <div style="font-size: 22px">
+        {% set full_stars = event['AverageRating']|int %}
+        {% set half_star = 1 if (event['AverageRating'] - full_stars) >= 0.5 else 0 %}
+        {% set empty_stars = 5 - full_stars - half_star %}
+
+        {% for _ in range(full_stars) %}
+            <i class="fa-solid fa-star" style="color: #415a77;"></i>
+        {% endfor %}
+
+        {% if half_star %}
+            <i class="fa-solid fa-star-half-stroke" style="color: #415a77;"></i>
+        {% endif %}
+
+        {% for _ in range(empty_stars) %}
+            <i class="fa-regular fa-star" style="color: #415a77;"></i>
+        {% endfor %}
+
+        ({{ event['AverageRating'] }})
+      </div>
+  </div>
+
+  <div style="text-align: center;">
+    <strong><label>Medium:</label></strong>
+      <p>{{ event['Medium'] }}</p>
+    <strong><label>Duration:</label></strong>
+      <p>{{ event['Duration'] }}</p>
+    <strong><label>Skill Level:</label></strong>
+      <p>{{ event['SkillLevel'] }}</p>
+    <strong><label>Tags:</label></strong>
+      <p>{{ event['Tags'] }}</p>
+    <strong><label>Cost:</label></strong>
+      <p>${{ event['Cost'] }}</p>
+    <strong><label>Description:</label></strong>
+      <p>{{ event['Info'] }}</p>
+  </div>
+
+  <h2 style="margin: 10px 10px">Reviews:</h2>
+
+  {% for review in reviews %}
+    <div class="evententry" style="margin: 0 10px">
+      <strong>{{ review['PublishedAt'] }}</strong>
+        <div>
+            {% set full_stars = review['Rating']|int %}
+            {% set half_star = 1 if (review['Rating'] - full_stars) >= 0.5 else 0 %}
+            {% set empty_stars = 5 - full_stars - half_star %}
+
+            {% for _ in range(full_stars) %}
+                <i class="fa-solid fa-star" style="color: #415a77;"></i>
+            {% endfor %}
+
+            {% if half_star %}
+                <i class="fa-solid fa-star-half-stroke" style="color: #415a77;"></i>
+            {% endif %}
+
+            {% for _ in range(empty_stars) %}
+                <i class="fa-regular fa-star" style="color: #415a77;"></i>
+            {% endfor %}
+
+        </div>
+        <p></p>
+        {{ review['Comments'] }}
+    </div>
+    {% endfor %}
+</body>
+</html>

@@ -1,0 +1,178 @@
+html {
+    font-family: Verdana, sans-serif;
+    background: #778da9;
+}
+
+h1 {
+    text-align: center;
+    color: #0d1b2a;
+}
+
+h2, h3, h4, h5, h6, strong, body, a {
+    color: #0d1b2a;
+}
+
+.input_screen {
+    border: 3px solid #415a77;
+    border-radius: 20px;
+    width: 40%;
+    margin: 25px auto;
+    color: #0d1b2a;
+}
+
+input, select, textarea, .EventName, .SkillLevel, .Cost, .Duration, .Medium {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    background-color: #e0e1dd;
+    border: none;
+    border-radius: 5px;
+}
+
+textarea {
+    height: 150px;
+    resize: none;
+}
+
+button, .Login, .CreateAccount, .SubmitReview, .Cancel, .AddEvent {
+    background-color: #415a77;
+    color: #e0e1dd;
+    padding: 14px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: medium;
+    margin: 10px 0;
+    transition: 0.1s ease-in;
+}
+
+select, option {
+    transition: 0.1s ease-in-out;
+    background-color: #E0E1DD;
+}
+
+button:hover, select:hover {
+    opacity: 0.8;
+}
+
+.AddEvent {
+    width: 15%;
+    margin: 0 15px;
+}
+
+.Login, .CreateAccount, .SubmitReview, .Cancel {
+    width: 30%;
+}
+
+.row {
+    text-align: center;
+    margin: 0 -20px;
+}
+
+.EventNotListed {
+    display: flex;
+    margin: 10px 0;
+}
+
+.welcome {
+    text-align: center;
+    margin: 24px 0 12px 0;
+}
+
+img.welcome {
+    display: block;
+    width: 40%;
+    margin: 0 auto;
+    border: 2px solid #0d1b2a;
+}
+
+label {
+    font-size: 20px;
+}
+
+.container {
+    padding: 16px;
+}
+
+.container .rating {
+    text-align: left;
+    direction: rtl;
+    padding: 5px 0;
+}
+
+.container .rating label {
+    display: inline-block;
+    cursor: pointer;
+    color: #e0e1dd;
+}
+
+.container .rating label i {
+    font-size: 1.5rem;
+    transition: 0.1s ease-in;
+}
+
+.container .rating label:hover i,
+.container .rating label:hover ~ label i {
+    color: #415a77;
+}
+
+.container .rating .rating-radio {
+    display: none;
+}
+
+.container .rating input[type="radio"]:checked + label i,
+.container .rating input[type="radio"]:checked ~ label i {
+    color: #415a77;
+}
+
+.evententry {
+    border-bottom: 1.5px solid #0d1b2a;
+    padding: 10px 0;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #415a77;
+    padding: 0px 20px;
+    color: #e0e1dd;
+}
+
+.navbar a {
+  color: #0d1b2a;;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+.navbar .items a:hover {
+  background-color: #E0E1DD;
+  transition: 0.1s ease-in-out;
+}
+
+.navbar .items a.active {
+  background-color: #1b263b;
+  color: #E0E1DD;
+}
+
+.eventtitle {
+    display: flex;
+    align-items: center;
+}
+
+.detail_header {
+    margin: 0 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.filters input,
+.filters select {
+    margin-left: 5px;
+    background-color: #e0e1dd;
+    color: #0d1b2a;
+}

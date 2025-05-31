@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta chaarset="UTF-8">
+    <meta name="viewport" ccontent="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <title>Home - Barkin!</title>
+</head>
+
+<div class="navbar">
+    <a class="logo" style="font-size: 20px; text-decoration:none" href="/"><strong>Barkin!</strong></a>
+    <div class="items">
+        {% if logged_in %}
+            <a href="/reviewform">Submit Review</a>
+            <a href="/profile">Profile</a>
+            <a href="/auth/logout">Logout</a>
+            {% else %}
+            <a href="/auth/login">Login</a>
+        {% endif %}
+    </div>
+</div>
+
+<body>
+    <form class="filters" method="get" action="{{ url_for('view.index') }}">
+        <input type="text" name="search" placeholder="Search event name..." value="{{ request.args.get('search', '') }}" style="width:30%; margin-left: 5px;">
+
+        <select name="medium" style="width:10%;">
+            <option value="">All Mediums</option>
+            <option value="In Person" {% if request.args.get('medium') == 'In Person' %}selected{% endif %}>In Person</option>
+            <option value="Online" {% if request.args.get('medium') == 'Online' %}selected{% endif %}>Online</option>
+            <option value="Hybrid" {% if request.args.get('medium') == 'Hybrid' %}selected{% endif %}>Hybrid</option>
+        </select>
+
+        <select name="duration" style="width:10%;">
+            <option value="">All Durations</option>
+            <option value="One day" {% if request.args.get('duration') == 'One day' %}selected{% endif %}>One day</option>
+            <option value="Multiple days" {% if request.args.get('duration') == 'Multiple days' %}selected{% endif %}>Multiple days</option>
+            <option value="One week" {% if request.args.get('duration') == 'One week' %}selected{% endif %}>One week</option>
+            <option value="Multiple weeks" {% if request.args.get('duration') == 'Multiple weeks' %}selected{% endif %}>Multiple weeks</option>
+            <option value="One month" {% if request.args.get('duration') == 'One month' %}selected{% endif %}>One month</option>
+            <option value="Multiple months" {% if request.args.get('duration') == 'Multiple months' %}selected{% endif %}>Multiple months</option>
+        </select>
+
+        <select name="skilllevel" style="width:10%;">
+            <option value="">All Skill Levels</option>
+            <option value="Beginner" {% if request.args.get('skilllevel') == 'Beginner' %}selected{% endif %}>Beginner</option>
+            <option value="Intermediate" {% if request.args.get('skilllevel') == 'Intermediate' %}selected{% endif %}>Intermediate</option>
+            <option value="Professional" {% if request.args.get('skilllevel') == 'Professional' %}selected{% endif %}>Professional</option>
+        </select>
+
+        <select name="cost" style="width:10%;">
+            <option value="">All Costs</option>
+            <option value="0" {% if request.args.get('cost') == '0' %}selected{% endif %}>Free</option>
+            <option value="1" {% if request.args.get('cost') == '1' %}selected{% endif %}>Not Free</option>
+        </select>
+
+        <button type="submit" style="margin-left: 5px;">Search</button>
+        <a href="{{ url_for('view.index') }}" style="padding: 14px 20px; border-radius: 5px; background: #415a77; color: #e0e1dd; text-decoration: none; margin-left: 5px">Reset</a>
+    </form>
+
+    <ul>
+    {% for review in reviews %}
+    <div class="eventtitle">
+        <h5><a href="{{ url_for('view.event_detail', name=review['EventName'], organization=review['EventOrganization']) }}" style="font-size: 16px">
+            {{ review['EventName'] }}  - {{ review['EventOrganization'] }} ({{ review['Medium'] }})
+            </a></h5>
+            <div style="padding: 0 20px">
+                {% set full_stars = review['AverageRating']|int %}
+                {% set half_star = 1 if (review['AverageRating'] - full_stars) >= 0.5 else 0 %}
+                {% set empty_stars = 5 - full_stars - half_star %}
+
+                {% for _ in range(full_stars) %}
+                    <i class="fa-solid fa-star" style="color: #415a77;"></i>
+                {% endfor %}
+
+                {% if half_star %}
+                    <i class="fa-solid fa-star-half-stroke" style="color: #415a77;"></i>
+                {% endif %}
+
+                {% for _ in range(empty_stars) %}
+                    <i class="fa-regular fa-star" style="color: #415a77;"></i>
+                {% endfor %}
+
+                ({{ review['AverageRating'] }})
+            </div>
+            <form method="post" style="display: inline;">
+                <input type="hidden" name="EventName" value="{{ review['EventName'] }}">
+                <input type="hidden" name="EventOrganization" value="{{ review['EventOrganization'] }}">
+                {% if (review['EventName'], review['EventOrganization']) in saved %}
+                    <button name="save" class="fa-solid fa-trash-can"
+                            style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Remove saved event">
+                    </button>
+                {% else %}
+                    <button name="save" class="fa-sharp fa-solid fa-floppy-disk"
+                            style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Save event">
+                    </button>
+                {% endif %}
+            </form>
+    </div>
+    <div class="evententry" style="display: block;">
+        <strong>Description:</strong>
+        {{ review['Info'] }}<br>
+        <strong>Latest Review:</strong>
+        {{ review['Comments'] }}
+    </div>
+    {% endfor %}
+    </ul>
+</body>
+</html>
