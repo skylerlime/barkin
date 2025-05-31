@@ -1,16 +1,31 @@
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
+from functools import wraps
 from werkzeug.exceptions import abort
 
 from barkin_site.db import get_db
 
 bp = Blueprint('view', __name__)
 
+def is_logged_in():
+    return 'user_id' in session
+
+def get_logged_in_user():
+    return session.get('user_id')
+
+def login_required(view):
+    @wraps(view)
+    def wrapped_view(**kwargs):
+        if not is_logged_in():
+            return redirect(url_for('auth.login'))
+        return view(**kwargs)
+    return wrapped_view
+
 @bp.route('/', methods=['GET', 'POST'])
 def index():
-    logged_in = 'user_id' in session
     db = get_db()
+    logged_in = is_logged_in()
 
     search = request.args.get('search', '').strip()
     medium = request.args.get('medium', '')
@@ -29,32 +44,31 @@ def index():
             LIMIT 1
         )
     '''
+
+    filters = []
     params = []
 
     if search:
-        query += ' AND Event.Name LIKE ?'
-        params.append(f'%{search}%')
-
+        filters.append("Event.Name LIKE ?")
+        params.append(f"%{search}%")
     if medium:
-        query += ' AND Event.Medium = ?'
+        filters.append("Event.Medium = ?")
         params.append(medium)
-
     if duration:
-        query += ' AND Event.Duration = ?'
+        filters.append("Event.Duration = ?")
         params.append(duration)
-
     if skilllevel:
-        query += ' AND Event.SkillLevel = ?'
+        filters.append("Event.SkillLevel = ?")
         params.append(skilllevel)
-
     if cost == '0':
-        query += ' AND Event.Cost = 0'
+        filters.append("Event.Cost = 0")
     elif cost == '1':
-        query += ' AND Event.Cost != 0'
+        filters.append("Event.Cost != 0")
 
-    query += '''
-        ORDER BY Event.Name ASC, Event.Organization ASC
-    '''
+    if filters:
+        query += " AND " + " AND ".join(filters)
+
+    query += " ORDER BY Event.Name ASC, Event.Organization ASC"
 
     reviews = db.execute(query, params).fetchall()
 
@@ -65,26 +79,19 @@ def index():
 
     return render_template('view/index.html', reviews=reviews, logged_in=logged_in, saved=saved)
 
-
 @bp.route('/event/<organization>/<name>', methods=['GET', 'POST'])
 def event_detail(name, organization):
-    logged_in = 'user_id' in session
+    if request.method == 'POST' and 'Return' in request.form:
+        return redirect(url_for('view.index'))
 
-    if request.method == 'POST':
-        if 'Return' in request.form:
-            return redirect(url_for('view.index'))
-    
     db = get_db()
     event = db.execute('SELECT * FROM Event WHERE Name = ? AND Organization = ?', (name, organization)).fetchone()
     reviews = db.execute('SELECT * FROM Review WHERE EventName = ? AND EventOrganization = ? ORDER BY PublishedAt DESC', (name, organization)).fetchall()
-    return render_template('view/event_detail.html', event=event, reviews=reviews, logged_in=logged_in)
+    return render_template('view/event_detail.html', event=event, reviews=reviews, logged_in=is_logged_in())
 
 @bp.route('/reviewform', methods=['GET', 'POST'])
+@login_required
 def reviewform():
-    logged_in = 'user_id' in session
-    if not logged_in:
-        return redirect(url_for("auth.login"))
-
     db = get_db()
     events = db.execute('SELECT Name, Organization FROM Event ORDER BY Name ASC').fetchall()
 
@@ -97,150 +104,92 @@ def reviewform():
         full_name = request.form.get('EventName')
         if not full_name:
             flash("Please select an event.")
-            return render_template('view/reviewform.html', events=events, logged_in=logged_in)
+            return render_template('view/reviewform.html', events=events, logged_in=True)
 
         name, org = full_name.split(" - ", 1)
-
         rating = request.form.get('rating')
         comments = request.form.get('Comments')
 
-        error = None
-        if not rating:
-            error = 'Rating is required.'
-        elif not comments:
-            error = 'A comment is required.'
+        if not rating or not comments:
+            flash('Rating and comment are required.')
+            return render_template('view/reviewform.html', events=events, logged_in=True)
 
-        if error:
-            flash(error)
-            return render_template('view/reviewform.html', events=events, logged_in=logged_in)
-
-        rating = int(rating)
-        user_id = session['user_id']
-
-        event = db.execute(
-            'SELECT 1 FROM Event WHERE Name = ? AND Organization = ?',
-            (name, org)
-        ).fetchone()
-
-        if not event:
-            flash("Selected event does not exist.")
-            return render_template('view/reviewform.html', events=events, logged_in=logged_in)
-
+        user_id = get_logged_in_user()
         db.execute(
             "INSERT INTO Review (UserID, EventName, EventOrganization, Rating, Comments) VALUES (?, ?, ?, ?, ?)",
-            (user_id, name, org, rating, comments)
+            (user_id, name, org, int(rating), comments)
         )
         db.commit()
         return redirect(url_for('view.index'))
 
-    return render_template("view/reviewform.html", events=events, logged_in=logged_in)
-
-
-
+    return render_template("view/reviewform.html", events=events, logged_in=True)
 
 @bp.route('/reviewform_newevent', methods=['GET', 'POST'])
+@login_required
 def reviewform_newevent():
-    logged_in = 'user_id' in session
-    if not logged_in:
-        return redirect(url_for("auth.login"))
-
     db = get_db()
 
     if request.method == 'POST':
         if 'Cancel' in request.form:
             return redirect(url_for('view.index'))
 
-        event = request.form.get('EventName')
-        org = request.form.get('Organization')
-        rating = request.form.get('rating')
-        level = request.form.get('SkillLevel')
-        cost = request.form.get('Cost')
-        duration = request.form.get('Duration')
-        medium = request.form.get('Medium')
-        info =request.form.get('Info')
-        comments = request.form.get('Comments')
-        tags = request.form.get('Tags')
+        fields = [
+            'EventName', 'Organization', 'rating', 'SkillLevel', 'Cost',
+            'Duration', 'Medium', 'Info', 'Comments', 'Tags'
+        ]
+        missing = [f for f in fields if not request.form.get(f)]
+        if missing:
+            flash(f"Missing fields: {', '.join(missing)}")
+            return render_template('view/reviewform_newevent.html', logged_in=True)
 
-        error = None
-        if not event:
-            error = 'Event name is required.'
-        elif not org:
-            error = 'Organization is required.'
-        elif not rating:
-            error = 'Rating is required.'
-        elif not level:
-            error = 'Skill Level is required.'
-        elif not cost:
-            error = 'Cost is required.'
-        elif not duration:
-            error = 'Duration is required.'
-        elif not medium:
-            error = 'Medium is required.'
-        elif not info:
-            info = 'A description of the event is required.'
-        elif not comments:
-            error = 'A comment is required.'
-        elif not tags:
-            error = 'Tags are required.'
-
-        if error:
-            flash(error)
-            return render_template('view/reviewform_newevent.html', logged_in=logged_in)
-
-        rating = int(rating)
-        user_id = session['user_id']
-
+        user_id = get_logged_in_user()
         db.execute(
             "INSERT INTO Event (Name, Organization, Medium, Duration, SkillLevel, Info, Tags, Cost) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (event, org, medium, duration, level, info, tags, cost)
+            (request.form['EventName'], request.form['Organization'], request.form['Medium'],
+             request.form['Duration'], request.form['SkillLevel'], request.form['Info'],
+             request.form['Tags'], request.form['Cost'])
         )
         db.execute(
             "INSERT INTO Review (UserID, EventName, EventOrganization, Rating, Comments) VALUES (?, ?, ?, ?, ?)",
-            (user_id, event, org, rating, comments)
+            (user_id, request.form['EventName'], request.form['Organization'], int(request.form['rating']), request.form['Comments'])
         )
         db.commit()
         return redirect(url_for('view.index'))
 
-    return render_template("view/reviewform_newevent.html", logged_in=logged_in)
+    return render_template("view/reviewform_newevent.html", logged_in=True)
 
 @bp.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
-    logged_in = 'user_id' in session
-    if not logged_in:
-        return redirect(url_for("auth.login"))
-    
     db = get_db()
+    user_id = get_logged_in_user()
 
-    if request.method == 'POST':
-        if 'remove' in request.form:
-            event_name = request.form['EventName']
-            event_org = request.form['EventOrganization']
+    if request.method == 'POST' and 'remove' in request.form:
+        event_name = request.form['EventName']
+        event_org = request.form['EventOrganization']
 
-            existing = db.execute(
-                "SELECT 1 FROM SavedEvents WHERE UserID = ? AND EventName = ? AND EventOrganization = ?",
-                (session['user_id'], event_name, event_org)
-            ).fetchone()
-
-            if existing:
-                db.execute(
-                    "DELETE FROM SavedEvents WHERE UserID = ? AND EventName = ? AND EventOrganization = ?",
-                    (session['user_id'], event_name, event_org)
-                )
-                db.commit()
-                flash(f"Removed saved event: {event_name} - {event_org}")
+        cursor = db.execute(
+            "DELETE FROM SavedEvents WHERE UserID = ? AND EventName = ? AND EventOrganization = ?",
+            (user_id, event_name, event_org)
+        )
+        if cursor.rowcount:
+            db.commit()
+            flash(f"Removed saved event: {event_name} - {event_org}")
 
     saved_events = db.execute(
-        """
+        '''
         SELECT SavedEvents.UserID, SavedEvents.EventName, SavedEvents.EventOrganization, Event.Info
         FROM SavedEvents
         JOIN Event ON SavedEvents.EventName = Event.Name AND SavedEvents.EventOrganization = Event.Organization
         WHERE SavedEvents.UserID = ?
         ORDER BY SavedEvents.EventName ASC
-        """,
-        (session['user_id'],)
+        ''',
+        (user_id,)
     ).fetchall()
-    user_reviews = db.execute("SELECT * FROM Review WHERE UserID = ? ORDER BY PublishedAt DESC",
-                              (session['user_id'],)
-                              ).fetchall()
 
-    return render_template("view/profile.html", saved_events=saved_events, user_reviews=user_reviews, logged_in=logged_in)
+    user_reviews = db.execute(
+        "SELECT * FROM Review WHERE UserID = ? ORDER BY PublishedAt DESC",
+        (user_id,)
+    ).fetchall()
+
+    return render_template("view/profile.html", saved_events=saved_events, user_reviews=user_reviews, logged_in=True)
