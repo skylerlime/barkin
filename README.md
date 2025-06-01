@@ -12,6 +12,8 @@ It's also dog themed this time :) woof
 
 There are definitely many improvements I could make, and I might come back in the future to improve or redo it (actually use JS to make it look nicer, implement admins, implement deleting/editing reviews, etc.), but I think it's decent given I'm still kinda new-ish Flask and especially HTML/CSS. I also just want to work on other projects now... woof.
 
+Some code was based on the sample project from Flask's documentation: https://flask.palletsprojects.com/en/stable/
+
 ## To run this, you just need to clone the repo, install the requirements, and run the following commands:  
 `flask --app barkin_site init-db`  
 `flask --app barkin_site run`  
