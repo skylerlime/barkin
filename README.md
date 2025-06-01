@@ -1,4 +1,4 @@
-# Barkin
+# Barkin!
 
 **BLUF**: This a remake of my internship project!
 
@@ -10,11 +10,14 @@ This version is ultimately pretty much the same other than the huge fact that it
 
 It's also dog themed this time :) woof
 
-There are definitely many improvements I could make, and I might come back in the future to improve or redo it (actually use JS to make it look nicer, implement admins, implement deleting/editing reviews, etc.), but I think it's pretty good given my lack of experience with Flask and especially HTML/CSS. I also just want to work on other projects now... woof.
+There are definitely many improvements I could make, and I might come back in the future to improve or redo it (actually use JS to make it look nicer, implement admins, implement deleting/editing reviews, etc.), but I think it's decent given I'm still kinda new-ish Flask and especially HTML/CSS. I also just want to work on other projects now... woof.
 
-## To run this, you just need to clone the repo, pip install Flask if you haven't already, and run the following commands:  
+## To run this, you just need to clone the repo, install the requirements, and run the following commands:  
 `flask --app barkin_site init-db`  
-`flask --app barkin_site run`
+`flask --app barkin_site run`  
+### Or, alternatively, just go here: https://barkin.onrender.com/
+(assuming it's up)
+
 
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠞⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
