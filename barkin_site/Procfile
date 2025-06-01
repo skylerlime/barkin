@@ -1,1 +1,1 @@
-web: gunicorn "barkin_site:create_app()"
+gunicorn "barkin_site:create_app()"
