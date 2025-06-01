@@ -85,19 +85,21 @@
 
                 ({{ review['AverageRating'] }})
             </div>
-            <form method="post" style="display: inline;">
-                <input type="hidden" name="EventName" value="{{ review['EventName'] }}">
-                <input type="hidden" name="EventOrganization" value="{{ review['EventOrganization'] }}">
-                {% if (review['EventName'], review['EventOrganization']) in saved %}
-                    <button name="save" class="fa-solid fa-trash-can"
-                            style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Remove saved event">
-                    </button>
-                {% else %}
-                    <button name="save" class="fa-sharp fa-solid fa-floppy-disk"
-                            style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Save event">
-                    </button>
-                {% endif %}
-            </form>
+            {% if logged_in %}
+                <form method="post" style="display: inline;">
+                    <input type="hidden" name="EventName" value="{{ review['EventName'] }}">
+                    <input type="hidden" name="EventOrganization" value="{{ review['EventOrganization'] }}">
+                    {% if (review['EventName'], review['EventOrganization']) in saved %}
+                        <button name="save" class="fa-solid fa-trash-can"
+                                style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Remove saved event">
+                        </button>
+                    {% else %}
+                        <button name="save" class="fa-sharp fa-solid fa-floppy-disk"
+                                style="color: #1b263b; font-size:24px; margin: 0 -10px; background: none; border: none;" type="submit" title="Save event">
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
     </div>
     <div class="evententry" style="display: block;">
         <strong>Description:</strong>
