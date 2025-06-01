@@ -27,6 +27,32 @@ def index():
     db = get_db()
     logged_in = is_logged_in()
 
+    if request.method == 'POST' and logged_in:
+        event_name = request.form.get('EventName')
+        event_org = request.form.get('EventOrganization')
+
+        if event_name and event_org:
+            user_id = session['user_id']
+
+            saved_row = db.execute(
+                "SELECT 1 FROM SavedEvents WHERE UserID = ? AND EventName = ? AND EventOrganization = ?",
+                (user_id, event_name, event_org)
+            ).fetchone()
+
+            if saved_row:
+                db.execute(
+                    "DELETE FROM SavedEvents WHERE UserID = ? AND EventName = ? AND EventOrganization = ?",
+                    (user_id, event_name, event_org)
+                )
+            else:
+                db.execute(
+                    "INSERT INTO SavedEvents (UserID, EventName, EventOrganization) VALUES (?, ?, ?)",
+                    (user_id, event_name, event_org)
+                )
+            db.commit()
+
+        return redirect(url_for('index'))
+
     search = request.args.get('search', '').strip()
     medium = request.args.get('medium', '')
     duration = request.args.get('duration', '')
@@ -74,10 +100,14 @@ def index():
 
     saved = set()
     if logged_in:
-        rows = db.execute("SELECT EventName, EventOrganization FROM SavedEvents WHERE UserID = ?", (session['user_id'],)).fetchall()
+        rows = db.execute(
+            "SELECT EventName, EventOrganization FROM SavedEvents WHERE UserID = ?",
+            (session['user_id'],)
+        ).fetchall()
         saved = {(row['EventName'], row['EventOrganization']) for row in rows}
 
     return render_template('view/index.html', reviews=reviews, logged_in=logged_in, saved=saved)
+
 
 @bp.route('/event/<organization>/<name>', methods=['GET', 'POST'])
 def event_detail(name, organization):
